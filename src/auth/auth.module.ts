@@ -29,7 +29,7 @@ import { TokenService } from './services/token.service';
       inject: [configuration.KEY],
       useFactory: (config: ConfigType<typeof configuration>) => ({
         secret: config.jwt_secret,
-        signOptions: { expiresIn: config.jwt_expiry },
+        signOptions: { expiresIn: parseInt(config.jwt_expiry) },
       }),
     }),
     UsersModule,
