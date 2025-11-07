@@ -14,6 +14,7 @@ export class AdminSeederService {
 
     if (!existingAdmin) {
       const password = 'secure_password';
+      console.log('the admin password is: ', password);
       const admin = this.userService.createAdmin(email, password);
     }
   }

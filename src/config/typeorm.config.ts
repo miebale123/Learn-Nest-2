@@ -3,11 +3,11 @@ import type { configuration } from './app.config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import type { PoolConfig } from 'pg';
 
-const poolOptions: PoolConfig = {
-  max: 5,
-  connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 10000,
-};
+// const poolOptions: PoolConfig = {
+//   max: 5,
+//   connectionTimeoutMillis: 10000,
+//   idleTimeoutMillis: 10000,
+// };
 
 export const typeOrmConfig = (
   config: ConfigType<typeof configuration>,
@@ -18,20 +18,20 @@ export const typeOrmConfig = (
 
   return {
     type: 'postgres',
-    // url: config.database.url,
-    host: config.database.host,
-    port: config.database.port,
-    username: config.database.user,
-    password: config.database.password,
-    database: config.database.name,
+    url: config.database.url,
+    // host: config.database.host,
+    // port: config.database.port,
+    // username: config.database.user,
+    // password: config.database.password,
+    // database: config.database.name,
     synchronize: config.database.synchronize,
     logging: config.database.logging,
     autoLoadEntities: config.database.autoLoadEntities,
     ssl: {
       rejectUnauthorized: false, // Required by Neon
     },
-    extra: poolOptions,
-    retryAttempts: 5, // retry on connection failure
-    retryDelay: 3000, // 3 seconds delay between retries
+    // extra: poolOptions,
+    // retryAttempts: 5, 
+    // retryDelay: 3000, 
   };
 };
