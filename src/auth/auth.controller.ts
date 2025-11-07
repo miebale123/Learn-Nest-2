@@ -84,7 +84,7 @@ export class AuthController {
     });
 
     return res.redirect(
-      `http://localhost:4200/OAuth-login?token=${accessToken}&email=${encodeURIComponent(
+      `https://learn-nest-kwvq.onrender.com/auth/google/callback/OAuth-login?token=${accessToken}&email=${encodeURIComponent(
         email,
       )}`,
     );
