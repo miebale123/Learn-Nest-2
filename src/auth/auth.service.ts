@@ -7,11 +7,7 @@ import {
 } from '@nestjs/common';
 import { AuthInternal } from './interfaces';
 import { UsersService } from '../users/users.service';
-import {
-  SigninDto,
-  SignupDto,
-  VerificationDto,
-} from './dto/auth-credentials.dto';
+import { SigninDto, SignupDto } from './dto/auth-credentials.dto';
 import { User } from 'src/users/entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
 import { SessionsService } from './services/session.service';

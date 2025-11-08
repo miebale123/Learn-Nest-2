@@ -3,6 +3,10 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { NotificationsGateway } from './notification.gateway';
 
+class NotificationDto{
+  message: string;
+}
+
 @Injectable()
 export class NotificationsService {
   constructor(private readonly gateway: NotificationsGateway) {}
@@ -17,9 +21,9 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  sendNotification(@Body() body: { message: string }) {
-    this.notificationsService.send(body.message);
-    return { status: 'sent', message: body.message };
+  sendNotification(@Body() dto: NotificationDto) {
+    this.notificationsService.send(dto.message);
+    return { status: 'sent', message: dto.message };
   }
 
   @Get()

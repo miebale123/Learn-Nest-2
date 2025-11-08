@@ -17,7 +17,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [config.frontEndLive, config.frontEndLocal],
     credentials: true,
-  });
+  }, );
   app.enableShutdownHooks();
 
   app.use(helmet());

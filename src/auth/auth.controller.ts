@@ -1,4 +1,16 @@
 import {
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  SigninDto,
+  SignupDto,
+  UpdatePasswordDto,
+  VerificationDto,
+} from './dto/auth-credentials.dto';
+import { User } from 'src/users/entities/user.entity';
+import { AuthResponseInterceptor } from './interceptors/auth-response.interceptor';
+import { PasswordService } from './services/password.service';
+import type { Response } from 'express';
+import {
   Body,
   Controller,
   Get,
@@ -15,29 +27,30 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { GetRefreshToken, GetUser } from './decorators';
-import type { AuthInternal, Profile } from './interfaces';
+import type { AuthInternal } from './interfaces';
 import { Public } from 'src/common/decorators';
 import { AuditExclude } from 'src/audit/audit-exclude.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import express from 'express';
+import { JwtService } from '@nestjs/jwt';
 
-import {
-  ForgotPasswordDto,
-  ResetPasswordDto,
-  SigninDto,
-  SignupDto,
-  UpdatePasswordDto,
-  VerificationDto,
-} from './dto/auth-credentials.dto';
-import { User } from 'src/users/entities/user.entity';
-import { AuthResponseInterceptor } from './interceptors/auth-response.interceptor';
-import { PasswordService } from './services/password.service';
-import type { Response } from 'express';
+export class DataDto {
+  data: { sub: string; email: string };
+}
+
+export interface AuthUser {
+  email?: string;
+  provider: string;
+  providerId: string;
+  accessToken?: string;
+}
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly passwordService: PasswordService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @Public()
@@ -64,6 +77,11 @@ export class AuthController {
     return await this.authService.signin(dto);
   }
 
+  @Get('/')
+  getRoot() {
+    return { message: 'Welcome to the Auth Service' };
+  }
+
   @Public()
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -72,21 +90,30 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: Profile, @Res() res: Response) {
-    const { email, accessToken, refreshToken } =
-      await this.authService.signinWithOAuth(req);
+  async googleCallback(
+    @Req() req: express.Request & { user?: AuthUser },
+    @Res() res: express.Response,
+  ) {
+    const user = req.user;
+    console.log('User from passport:', user);
+    if (!user?.email) {
+      return res.status(400).send('Authentication failed');
+    }
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // Create your own JWT now
+    const payload = {
+      email: user.email,
+      sub: user.providerId,
+      roles: ['user'],
+    };
+
+    const jwt = this.jwtService.sign(payload);
+    console.log('user:', user);
 
     return res.redirect(
-      `http://localhost:4200/OAuth-login?token=${accessToken}&email=${encodeURIComponent(
-        email,
-      )}`,
+      `https://birhan-academy-iota.vercel.app/oauth-login?token=${jwt}&email=${encodeURIComponent(user.email)}`,
+      // `http://localhost:4200/?token=${jwt}&email=${encodeURIComponent(user.email)}`,
+      // `http://localhost:4200/oauth-login?token=${jwt}&email=${encodeURIComponent(user.email)}`,
     );
   }
 

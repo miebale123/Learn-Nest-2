@@ -2,7 +2,6 @@ import { Controller, Get, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthModule } from './auth';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
 import { configuration } from './config/app.config';
@@ -19,6 +18,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AuthModule } from './auth';
 @Controller('/')
 class AppController {
   @Public()
@@ -66,7 +66,6 @@ class AppController {
     }),
     AuthModule,
     UsersModule,
-
     AdminModule,
     AuditModule,
     HousesModule,
