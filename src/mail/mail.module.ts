@@ -1,32 +1,33 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Module,
-} from '@nestjs/common';
-import { CreateEmailOptions, Resend } from 'resend';
+import { Module } from '@nestjs/common';
+
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-  private resend = new Resend(process.env.EMAIL_FROM);
+  private transporter: nodemailer.Transporter;
 
-  private async send(options: {
-    to: string;
-    subject: string;
-    html?: string;
-    text?: string;
-  }) {
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      secure: true,
+      tls: {
+        rejectUnauthorized: false, // avoids some certificate issues
+      },
+    });
+  }
+
+  private async send(options: nodemailer.SendMailOptions) {
     try {
-      const payload: any = {
-        from: 'miebalen@gmail.com',
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-      };
-
-      return await this.resend.emails.send(payload);
+      return await this.transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        ...options,
+      });
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException('Email failed to send');
     }
   }
@@ -40,24 +41,31 @@ export class MailService {
   }
 
   async sendPasswordReset(email: string, resetToken: string) {
+    const url = `http://localhost:4200/auth/reset-password/${resetToken}`;
+
     return this.send({
       to: email,
       subject: 'Password Reset Request',
-      text: `Reset your password:\nhttp://localhost:4200/auth/reset-password/${resetToken}`,
+      text: `Hello,\n\nClick the link below to reset your password:\n${url}`,
     });
   }
 
-  async sendHouseUpdated(email: string, house: {location: string}) {
+  async sendHouseUpdated(email: string, house) {
     return this.send({
       to: email,
       subject: 'A House You Saved Has Been Updated',
-      html: `<div>${house.location}</div>`,
+      text: `Good news!\n\nA these listings just got better!  `,
+      html: `
+        <div>
+            ${house}
+        </div>
+      `,
     });
   }
 }
 
 @Module({
   providers: [MailService],
-  exports: [MailService],
+  exports: [MailService], // export so Auth can use it
 })
 export class MailModule {}
