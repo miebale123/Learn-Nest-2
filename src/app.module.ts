@@ -7,18 +7,12 @@ import { randomUUID } from 'crypto';
 import { configuration } from './config/app.config';
 import { typeOrmConfig } from './config/typeorm.config';
 import { Public } from './common';
-import {
-  UsersModule,
-  AdminModule,
-  AuditModule,
-  HousesModule,
-  BookmarkModule,
-} from './';
+import { UsersModule, AdminModule, AuditModule, HousesModule } from './';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './audit/audit.interceptor';
-import { NotificationsModule } from './notifications/notifications.module';
 import { AuthModule } from './auth';
+
 @Controller('/')
 class AppController {
   @Public()
@@ -68,9 +62,8 @@ class AppController {
     UsersModule,
     AdminModule,
     AuditModule,
-    HousesModule,
-    BookmarkModule,
-    NotificationsModule,
+    // HousesModule,
+    // BookmarkModule,
   ],
   providers: [
     GlobalExceptionFilter,

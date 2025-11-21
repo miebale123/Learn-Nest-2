@@ -13,15 +13,15 @@ import {
   JoinTable,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { Bookmark } from 'src/bookmarks/bookmarks.entity';
 import { UserSession } from './user-session.entity';
 import { PasswordReset } from './password-reset.entity';
 import { UserProfile } from './user-profile.entity';
 import { UserRole } from './user-roles.entity';
+import { Bookmark, House, Notification } from 'src/houses/houses.entity';
 
 export type UserStatus = 'active' | 'blocked' | 'deleted' | 'pending';
 
-// @Unique(['email'])
+@Unique(['email'])
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -67,10 +67,18 @@ export class User {
   profile?: Relation<UserProfile> | null;
 
   @OneToMany(() => UserRole, (userRole) => userRole.user)
-  userRoles: UserRole[];
+  userRoles: Relation<UserRole[]>;
+
+  @OneToMany(() => House, (house) => house.user, { eager: true })
+  houses: Relation<House>;
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user, { eager: true })
   bookmarks: Relation<Bookmark[]>;
+
+  @OneToMany(() => Notification, (notification) => notification.user, {
+    eager: true,
+  })
+  notifications?: Relation<Notification[]>;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

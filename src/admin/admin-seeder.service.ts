@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { RolesService } from 'src/users/roles.service';
-import { UserRolesService } from 'src/users/user-roles.service';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -13,7 +11,7 @@ export class AdminSeederService {
     const existingAdmin = await this.userService.findByEmail(email);
 
     if (!existingAdmin) {
-      const password = 'secure_password';
+      const password = 'secure';
       console.log('the admin password is: ', password);
       const admin = this.userService.createAdmin(email, password);
     }

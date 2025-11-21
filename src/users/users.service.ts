@@ -20,7 +20,7 @@ export class UsersService {
     private readonly userRolesService: UserRolesService,
   ) {}
 
-  async getAllUsers() {
+  async getUsers() {
     return this.userRepo.find({ relations: ['userRoles', 'userRoles.role'] });
   }
 

@@ -1,14 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  // "include": [
-  //   "src/main.ts",
-  //   "src/users/**/*.ts",
-  //   "src/auth/**/*.ts"
-  // ],
-  "exclude": [
-    "node_modules",
-    "test",
-    "dist",
-    "**/*spec.ts"
-  ]
+
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

@@ -27,7 +27,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^11.1.7",
+    "@nestjs/platform-express": "^11.1.9",
     "@nestjs/platform-socket.io": "^11.1.8",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
@@ -47,6 +47,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "serverless-http": "^4.0.0",
+    "typeorm": "^0.3.27",
+    "web-push": "^3.6.7",
     "zod": "^4.1.11"
   },
   "devDependencies": {
@@ -67,6 +69,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.2",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

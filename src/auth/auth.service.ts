@@ -9,11 +9,15 @@ import { AuthInternal } from './interfaces';
 import { UsersService } from '../users/users.service';
 import { SigninDto, SignupDto } from './dto/auth-credentials.dto';
 import { User } from 'src/users/entities/user.entity';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from 'src/mail/mail.module';
 import { SessionsService } from './services/session.service';
 import { Profile } from './interfaces';
 import { TokenService } from './services/token.service';
 import { compare } from './bcrypt.util';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserSession } from 'src/users/entities/user-session.entity';
+import { Repository } from 'typeorm';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,6 +25,8 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly sessionService: SessionsService,
     private readonly tokenService: TokenService,
+    @InjectRepository(UserSession)
+    private readonly sessionRepo: Repository<UserSession>,
   ) {}
 
   async signup(dto: SignupDto): Promise<{ message: string }> {
@@ -33,7 +39,7 @@ export class AuthService {
 
     await this.usersService.createUser(email, password, verifytoken);
 
-    await this.mailService.verfiyEmailCode(email, verifytoken);
+    await this.mailService.sendVerifyCode(email, verifytoken);
 
     return { message: 'verification code has been sent to your email' };
   }
@@ -111,21 +117,22 @@ export class AuthService {
     };
   }
 
-  async refresh(oldRefreshToken: string, user: User): Promise<AuthInternal> {
-    const foundSession = await this.sessionService.findSession(
-      oldRefreshToken,
-      user.id,
-    );
+  async refresh(oldRefreshToken: string, user: User) {
+    const sessions = await this.sessionRepo.find({
+      where: { id: user.id, revoked: false },
+    });
 
-    if (!foundSession)
-      throw new BadRequestException('Refresh token session not found');
+    console.log(sessions);
 
-    const isMatch = await compare(
-      oldRefreshToken,
-      foundSession.hashedRefreshToken!,
-    );
-
-    if (!isMatch) throw new BadRequestException('Invalid refresh token');
+    for (const session of sessions) {
+      const isMatch = await compare(
+        oldRefreshToken,
+        session.hashedRefreshToken!,
+      );
+      console.log('ismatch: ', isMatch);
+      if (!isMatch) return null;
+      return session;
+    }
 
     await this.sessionService.revokeSession(user.id, oldRefreshToken);
 

@@ -9,11 +9,9 @@ import {
 } from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserRole } from 'src/users/user.enum';
 import { UsersService } from 'src/users/users.service';
 import { RolesService } from 'src/users/roles.service';
 import { UserRolesService } from 'src/users/user-roles.service';
-import { Public } from 'src/common';
 
 @Controller('admin-page')
 @UseGuards(RolesGuard)
@@ -51,6 +49,6 @@ export class AdminController {
 
   @Get('users')
   async getAllUsers() {
-    return this.usersService.getAllUsers();
+    return this.usersService.getUsers();
   }
 }

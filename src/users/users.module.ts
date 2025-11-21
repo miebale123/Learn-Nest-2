@@ -3,9 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
 import { HousesModule } from 'src/houses/houses.module';
 import { User } from './entities/user.entity';
-import { Bookmark } from 'src/bookmarks/bookmarks.entity';
 import { UsersController } from './users.controller';
-import { BookmarkModule } from 'src/bookmarks/bookmarks.module';
 import { RolesService } from 'src/users/roles.service';
 import { Role } from './entities/roles.entity';
 import { UserSession } from './entities/user-session.entity';
@@ -27,7 +25,7 @@ import { UserRole } from './entities/user-roles.entity';
       PasswordReset,
     ]),
     forwardRef(() => HousesModule),
-    forwardRef(() => BookmarkModule),
+    // forwardRef(() => BookmarkModule),
   ],
   providers: [
     UsersService,

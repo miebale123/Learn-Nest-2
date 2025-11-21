@@ -5,7 +5,6 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { MailService } from 'src/mail/mail.service';
 import {
   ForgotPasswordDto,
   ResetPasswordDto,
@@ -14,6 +13,7 @@ import {
 import { User } from 'src/users/entities/user.entity';
 import { PasswordResetService } from 'src/users/password-reset.service';
 import { compare, hash } from '../bcrypt.util';
+import { MailService } from 'src/mail/mail.module';
 
 @Injectable()
 export class PasswordService {
@@ -56,7 +56,7 @@ export class PasswordService {
     );
 
     // Send email with raw token
-    await this.mailService.sendPasswordResetEmail(user.email, resetToken);
+    await this.mailService.sendPasswordReset(user.email, resetToken);
   }
 
   // --- Reset password using token ---

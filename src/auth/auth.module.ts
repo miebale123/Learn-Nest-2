@@ -9,7 +9,7 @@ import { ConfigType } from '@nestjs/config';
 import { configuration } from '../config/app.config';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { MailModule } from 'src/mail/mail.module';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from 'src/mail/mail.module';
 import { UsersService } from 'src/users/users.service';
 import { JwtStrategy } from './strategies';
 import { UsersModule } from 'src/users/users.module';
@@ -100,6 +100,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     PasswordResetService,
     TokenService,
   ],
-  exports: [PassportModule],
+  exports: [PassportModule, ],
 })
 export class AuthModule {}

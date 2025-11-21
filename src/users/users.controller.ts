@@ -12,10 +12,9 @@ export class UsersController {
     return await this.usersService.findByEmail(id);
   }
 
-  
   @Public()
   @Get()
   async getUsers() {
-    return await this.usersService.getAllUsers();
+    return await this.usersService.getUsers();
   }
 }

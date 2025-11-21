@@ -30,12 +30,14 @@ export class SessionsService {
       where: { userId, revoked: false },
     });
 
+    console.log(sessions);
+
     for (const session of sessions) {
-      if (await compare(refreshToken, session.hashedRefreshToken!)) {
-        return session;
-      }
+      const isMatch = await compare(refreshToken, session.hashedRefreshToken!);
+      console.log('ismatch: ', isMatch);
+      if (!isMatch) return null;
+      return session;
     }
-    return null;
   }
 
   async revokeSession(userId: number, refreshToken?: string) {
