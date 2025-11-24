@@ -11,6 +11,8 @@ import {
 import { User } from './user.entity';
 import { UserRole } from './user-roles.entity';
 
+
+
 @Entity('roles')
 export class Role {
   @PrimaryGeneratedColumn()

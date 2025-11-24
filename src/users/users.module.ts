@@ -3,11 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
 import { HousesModule } from 'src/houses/houses.module';
 import { User } from './entities/user.entity';
-import { UsersController } from './users.controller';
 import { RolesService } from 'src/users/roles.service';
 import { Role } from './entities/roles.entity';
 import { UserSession } from './entities/user-session.entity';
-import { SessionsService } from 'src/auth/services/session.service';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { UserProfile } from './entities/user-profile.entity';
@@ -31,16 +29,8 @@ import { UserRole } from './entities/user-roles.entity';
     UsersService,
     RolesService,
     UserRolesService,
-    SessionsService,
     PasswordResetService,
   ],
-  exports: [
-    UsersService,
-    RolesService,
-    UserRolesService,
-    SessionsService,
-    PasswordResetService,
-  ],
-  controllers: [UsersController],
+  exports: [UsersService, RolesService, UserRolesService, PasswordResetService],
 })
 export class UsersModule {}

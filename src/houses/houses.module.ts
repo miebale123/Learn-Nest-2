@@ -263,7 +263,7 @@ export class HousesController {
 
     for (const bookmark of saversOfHouse) {
       const payload = {
-        type: 'house-updated',
+        type: 'updated',
         houseId: updatedHouse.id,
       };
 
@@ -314,6 +314,16 @@ export class HousesController {
     return this.houseRepository.delete(id);
   }
 
+  @Delete('deleteNotification/:id')
+  async deleteNotification(@Param('id') id: string, @GetUser() user: User) {
+    const existing = await this.notificationRepo.findOne({
+      where: { id, user: { id: user.id } },
+      relations: ['user'],
+    });
+
+    const result = await this.notificationRepo.delete(id);
+    return { result };
+  }
   @Delete('deleteBookmark/:id')
   async deleteBookmark(@Param('id') id: string, @GetUser() user: User) {
     const existing = await this.bookmarkRepo.findOne({

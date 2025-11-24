@@ -1,5 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { RequestWithUserAndCookies } from '../interfaces/req-user-cookies.interface';
+import type { ExecutionContext } from '@nestjs/common';
+import { createParamDecorator } from '@nestjs/common';
+import type { RequestWithUserAndCookies } from '../interfaces/req-user-cookies.interface';
 
 export const GetRefreshToken = createParamDecorator(
     (_data: unknown, ctx: ExecutionContext): string => {

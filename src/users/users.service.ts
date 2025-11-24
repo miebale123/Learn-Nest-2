@@ -47,6 +47,8 @@ export class UsersService {
     email: string,
     password?: string | null,
     verifytoken?: string | null,
+    providerId?: string | null,
+    provider?: string | null,
   ): Promise<User> {
     const hashedPassword = password ? await hash(password) : null;
     console.log('hashedPassword is ', hashedPassword);
@@ -59,6 +61,8 @@ export class UsersService {
       status: 'pending',
       hashedPassword,
       hashedOTP,
+      provider,
+      providerId,
     });
 
     let role = await this.roleService.findRole('user');

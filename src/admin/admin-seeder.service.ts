@@ -11,9 +11,10 @@ export class AdminSeederService {
     const existingAdmin = await this.userService.findByEmail(email);
 
     if (!existingAdmin) {
-      const password = 'secure';
-      console.log('the admin password is: ', password);
-      const admin = this.userService.createAdmin(email, password);
+      const admin = this.userService.createAdmin(
+        process.env.ADMIN_EMAIL!,
+        process.env.ADMIN_PASS!,
+      );
     }
   }
 }

@@ -28,7 +28,7 @@ export const typeOrmConfig = (
     logging: config.database.logging,
     autoLoadEntities: config.database.autoLoadEntities,
     ssl: {
-      rejectUnauthorized: false, // Required by Neon
+      rejectUnauthorized: false, 
     },
     // extra: poolOptions,
     // retryAttempts: 5, 

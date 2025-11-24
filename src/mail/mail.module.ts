@@ -15,9 +15,6 @@ export class MailService {
         pass: process.env.EMAIL_PASS,
       },
       secure: true,
-      tls: {
-        rejectUnauthorized: false, // avoids some certificate issues
-      },
     });
   }
 
