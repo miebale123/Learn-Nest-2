@@ -180,10 +180,24 @@ export class AuthController {
     @Res({ passthrough: true }) res: express.Response,
   ) {
     // Find the session with this specific refresh token
-    const session = await this.sessionRepo.findOne({
-      where: { revoked: false },
-    });
-    if (!session) throw new UnauthorizedException('Invalid refresh token');
+    // Find session by refresh token and revoke it
+   const sessions = await this.sessionRepo.find({
+  where: { revoked: false },
+});
+
+let session: UserSession | null = null;
+
+
+for (const s of sessions) {
+  const isMatch = await compare(currentRefreshToken, s.hashedRefreshToken!);
+  if (isMatch) {
+    session = s;
+    break;
+  }
+}
+
+if (!session) throw new UnauthorizedException('Invalid refresh token');
+
 
     const isMatch = await compare(
       currentRefreshToken,
@@ -295,7 +309,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       inject: [configuration.KEY],
       useFactory: (config: ConfigType<typeof configuration>) => ({
         secret: config.jwt_secret,
-        signOptions: { expiresIn: '5s' },
+        signOptions: { expiresIn: '15m' },
         // parseInt(config.jwt_expiry)
       }),
     }),

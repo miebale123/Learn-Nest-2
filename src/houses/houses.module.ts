@@ -263,7 +263,7 @@ export class HousesController {
 
     for (const bookmark of saversOfHouse) {
       const payload = {
-        type: 'updated',
+        type: 'price-drops: ',
         houseId: updatedHouse.id,
       };
 
