@@ -56,7 +56,6 @@ export interface AuthUser {
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly userService: UsersService,
     private readonly tokenService: TokenService,
     @InjectRepository(UserSession)
@@ -181,23 +180,21 @@ export class AuthController {
   ) {
     // Find the session with this specific refresh token
     // Find session by refresh token and revoke it
-   const sessions = await this.sessionRepo.find({
-  where: { revoked: false },
-});
+    const sessions = await this.sessionRepo.find({
+      where: { revoked: false },
+    });
 
-let session: UserSession | null = null;
+    let session: UserSession | null = null;
 
+    for (const s of sessions) {
+      const isMatch = await compare(currentRefreshToken, s.hashedRefreshToken!);
+      if (isMatch) {
+        session = s;
+        break;
+      }
+    }
 
-for (const s of sessions) {
-  const isMatch = await compare(currentRefreshToken, s.hashedRefreshToken!);
-  if (isMatch) {
-    session = s;
-    break;
-  }
-}
-
-if (!session) throw new UnauthorizedException('Invalid refresh token');
-
+    if (!session) throw new UnauthorizedException('Invalid refresh token');
 
     const isMatch = await compare(
       currentRefreshToken,
@@ -242,7 +239,6 @@ if (!session) throw new UnauthorizedException('Invalid refresh token');
     @Res({ passthrough: true }) res: express.Response,
   ) {
     if (!currentRefreshToken) {
-      console.log('current refresh token required');
       return { message: 'No refresh token provided' };
     }
 

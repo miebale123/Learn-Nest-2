@@ -32,7 +32,7 @@ export class PasswordResetService {
 
     for (const record of records) {
       if (await compare(token, record.hashedResetToken)) {
-        const user = await this.userRepo.findOneBy({ id: record.user_id });
+        const user = await this.userRepo.findOneBy({ id: record.userId });
         if (!user) return null;
         user.status = 'active';
         await this.userRepo.save(user);

@@ -9,15 +9,15 @@ import {
   DeleteDateColumn,
   ManyToOne,
   OneToOne,
-  ManyToMany,
-  JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 import { UserSession } from './user-session.entity';
 import { PasswordReset } from './password-reset.entity';
+import { Bookmark, House, Notification } from 'src/houses/houses.entity';
 import { UserProfile } from './user-profile.entity';
 import { UserRole } from './user-roles.entity';
-import { Bookmark, House, Notification } from 'src/houses/houses.entity';
+import { Broker } from 'src/broker/broker.entity';
 
 export type UserStatus = 'active' | 'blocked' | 'deleted' | 'pending';
 
@@ -29,6 +29,9 @@ export class User {
 
   @Column({ type: 'varchar', nullable: false })
   email: string;
+
+  @OneToOne(() => Broker, (broker) => broker.user)
+  broker?: Broker;
 
   @Column({ type: 'text', nullable: true })
   hashedPassword?: string | null;

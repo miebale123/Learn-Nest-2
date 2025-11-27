@@ -12,6 +12,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { AuthModule } from './auth';
+import { SettingsModule } from './settings.module';
 
 @Controller('/')
 class AppController {
@@ -62,6 +63,7 @@ class AppController {
     UsersModule,
     AdminModule,
     AuditModule,
+    SettingsModule
     // HousesModule,
     // BookmarkModule,
   ],

@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  forwardRef,
 } from '@nestjs/common';
 import {
   v2 as cloudinary,
@@ -18,7 +19,7 @@ import {
   UploadApiResponse,
 } from 'cloudinary';
 import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   Bookmark,
   House,
@@ -35,19 +36,8 @@ import { MailService } from 'src/mail/mail.module';
 import { MailModule } from 'src/mail/mail.module';
 import { Readable } from 'stream';
 import { FileInterceptor } from '@nestjs/platform-express';
-
-export class HouseDto {
-  type: HouseType;
-  property_type: PropertyType;
-  secure_url: string;
-  location: string;
-  previousPrice?: number;
-  priceReduced?: boolean;
-  price: number;
-  bathroom: number;
-  bedroom: number;
-  area: string;
-}
+import { Broker } from 'src/broker/broker.entity';
+import { HouseDto } from './house.dto';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -84,6 +74,11 @@ class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 }
 
+class BrokerDto {
+  username: string;
+  location: string;
+}
+
 @Controller('houses')
 export class HousesController {
   constructor(
@@ -99,12 +94,66 @@ export class HousesController {
     private notificationRepo: Repository<Notification>,
 
     private mailService: MailService,
+
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+
+    @InjectRepository(Broker)
+    private brokerRepo: Repository<Broker>,
   ) {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_NAME,
       api_key: process.env.CLOUDINARY_KEY,
       api_secret: process.env.CLOUDINARY_SECRET,
     });
+  }
+
+  @Post('upload-broker-info')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBrokerInfo(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: BrokerDto,
+    @GetUser() user: User,
+  ) {
+    const result: UploadApiResponse = await new Promise((resolve, reject) => {
+      const upload = cloudinary.uploader.upload_stream(
+        { resource_type: 'auto' },
+        (error: UploadApiErrorResponse, result: UploadApiResponse) => {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+          if (error) return reject(error);
+          resolve(result);
+        },
+      );
+      Readable.from(file.buffer).pipe(upload);
+    });
+
+    // Find an available broker in the same location
+    const broker = await this.brokerRepo.findBy({ location: dto.location });
+
+    console.log('the broker near by is: ', broker);
+
+    const newBroker = this.brokerRepo.create({});
+
+    const saved = await this.brokerRepo.save(newBroker);
+
+    return {
+      savedHouse: {
+        ...saved,
+        userId: saved.user.id,
+        status: saved.status,
+      },
+    };
+  }
+
+  @Patch('approve/:id')
+  async approveHouse(@Param('id') id: string, @GetUser() user: User) {
+    const house = await this.houseRepository.findOne({ where: { id } });
+    // check if user is broker
+
+    if (!house) throw new NotFoundException('house not found');
+
+    house.status = 'approved';
+    await this.houseRepository.save(house);
   }
 
   @Post('upload-house')
@@ -126,21 +175,24 @@ export class HousesController {
       Readable.from(file.buffer).pipe(upload);
     });
 
+    // Find an available broker in the same location
+    const broker = await this.brokerRepo.findBy({ location: dto.location });
+
+    console.log('the broker near by is: ', broker);
+
     const newHouse = this.houseRepository.create({
       type: dto.type,
       property_type: dto.property_type,
       secure_url: result.secure_url,
       location: dto.location,
       price: dto.price,
-
-      // new fields handled correctly
       previousPrice: null,
       priceReduced: false,
-
       bedroom: dto.bedroom,
       bathroom: dto.bathroom,
       area: dto.area,
-      user,
+      user, // logged-in user, required
+      status: 'pending',
     });
 
     const saved = await this.houseRepository.save(newHouse);
@@ -149,6 +201,8 @@ export class HousesController {
       savedHouse: {
         ...saved,
         userId: saved.user.id,
+        status: saved.status,
+        assignedBrokerId: saved.assignedBroker?.id,
       },
     };
   }
@@ -175,8 +229,10 @@ export class HousesController {
   async getHouses(
     @Query('min') min?: string,
     @Query('max') max?: string,
-    @Query('bedroom') bedroom?: string,
-    @Query('bathroom') bathroom?: string,
+    @Query('bedroomMin') bedroomMin?: string,
+    @Query('bedroomMax') bedroomMax?: string,
+    @Query('bathroomMin') bathroomMin?: string,
+    @Query('bathroomMax') bathroomMax?: string,
     @Query('property_type') property_type?: string,
     @Query('type') type?: string,
     @Query('location') location?: string,
@@ -188,8 +244,20 @@ export class HousesController {
 
     if (min) qb.andWhere('house.price >= :min', { min });
     if (max) qb.andWhere('house.price <= :max', { max });
-    if (bedroom) qb.andWhere('house.bedroom = :bedroom', { bedroom });
-    if (bathroom) qb.andWhere('house.bathroom = :bathroom', { bathroom });
+    if (bedroomMin || bedroomMax) {
+      if (bedroomMin)
+        qb.andWhere('house.bedroom >= :bedroomMin', { bedroomMin });
+      if (bedroomMax)
+        qb.andWhere('house.bedroom <= :bedroomMax', { bedroomMax });
+    }
+
+    if (bathroomMin || bathroomMax) {
+      if (bathroomMin)
+        qb.andWhere('house.bathroom >= :bathroomMin', { bathroomMin });
+      if (bathroomMax)
+        qb.andWhere('house.bathroom <= :bathroomMax', { bathroomMax });
+    }
+
     if (property_type)
       qb.andWhere('house.property_type = :property_type', { property_type });
     if (type) qb.andWhere('house.type = :type', { type });
@@ -357,8 +425,9 @@ export class HousesController {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([House, Bookmark, Notification]),
+    TypeOrmModule.forFeature([House, Bookmark, Notification, User, Broker]),
     MailModule,
+    forwardRef(() => HousesModule),
   ],
   controllers: [HousesController],
   providers: [NotificationGateway],

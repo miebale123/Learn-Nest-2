@@ -33,13 +33,13 @@
 //   }
 
 //   async verifyEmail(otp: string): Promise<AuthInternal> {
-//     console.log('verication code is: ', otp);
+//
 //     const user = await this.usersService.findByOTP(otp);
 //     if (!user) throw new BadRequestException('User not found');
 
 //     const isMatch = await compare(otp, user.hashedOTP!);
 
-//     console.log('isMatch is ', isMatch);
+//
 
 //     if (!isMatch) throw new UnauthorizedException('Invalid verification token');
 

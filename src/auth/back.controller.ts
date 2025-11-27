@@ -35,7 +35,6 @@
 // import { JwtService } from '@nestjs/jwt';
 // import { UsersService } from 'src/users/users.service';
 
-
 // export interface AuthUser {
 //   email?: string;
 //   provider: string;
@@ -94,7 +93,7 @@
 //     @Res() res: express.Response,
 //   ) {
 //     const user = req.user;
-//     console.log('User from passport:', user);
+//
 //     if (!user?.email) {
 //       return res.status(400).send('Authentication failed');
 //     }
@@ -107,7 +106,7 @@
 //     };
 
 //     const jwt = this.jwtService.sign(payload);
-//     console.log('user:', user);
+//
 
 //     return res.redirect(
 //       // `https://birhan-academy-iota.vercel.app/oauth-login?token=${jwt}&email=${encodeURIComponent(user.email)}`,

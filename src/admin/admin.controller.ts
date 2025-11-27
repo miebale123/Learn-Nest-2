@@ -31,7 +31,7 @@ export class AdminController {
     // 1. Find the user
     const user = await this.usersService.findById(id);
     if (!user) {
-      throw new Error(`User with id ${id} not found`);
+      throw new Error(`user with id ${id} not found`);
     }
 
     // 2. Find or create role
@@ -41,8 +41,7 @@ export class AdminController {
     }
 
     // 3. Update user's role (via pivot table)
-    await this.userRolesService.assignRoleToUser(user.id, role.id);
-
+    await this.userRolesService.assignRoleToUser(user, role.id);
 
     return { message: `User ${user.email} role updated to ${role.name}` };
   }

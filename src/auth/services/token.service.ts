@@ -11,7 +11,6 @@ export class TokenService {
   async getAccessToken(user: User) {
     // Make sure roles are loaded (userRoles relation)
     const roles = user.userRoles?.map((ur) => ur.role.name) || [];
-    console.log('user roles are ', roles);
 
     const payload: JwtPayload = {
       sub: user.id,
@@ -29,9 +28,7 @@ export class TokenService {
     return refreshToken;
   }
 
-  async getVerificationToken(){
-
-  }
+  async getVerificationToken() {}
 
   async verifyToken(token: string): Promise<JwtPayload> {
     return this.jwtService.verifyAsync<JwtPayload>(token);

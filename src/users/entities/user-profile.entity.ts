@@ -1,13 +1,18 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  OneToOne,
-  JoinColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
+
 
 @Entity('user_profiles')
 export class UserProfile {
@@ -17,14 +22,11 @@ export class UserProfile {
   @Column({ type: 'varchar', nullable: true })
   full_name?: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  bio?: string | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  avatar_url?: string | null;
+  @Column({ nullable: true })
+  location: string; // <-- add this if brokers are assigned by location
 
   @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' }) // adds user_id column
+  @JoinColumn({ name: 'userId' }) // adds userId column
   user: User;
 
   @CreateDateColumn()

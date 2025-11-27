@@ -2,6 +2,7 @@ import { CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import type { Relation } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Broker } from 'src/broker/broker.entity';
 
 export const HOUSE_TYPES = ['for sale', 'for rent'] as const;
 export type HouseType = (typeof HOUSE_TYPES)[number];
@@ -15,7 +16,7 @@ export class House {
   id: string;
 
   @Column()
-  type: HouseType; // which is rental or for sale
+  type: HouseType;
 
   @Column()
   secure_url: string;
@@ -27,7 +28,7 @@ export class House {
   previousPrice: number | null;
 
   @Column({ type: 'decimal' })
-  price: number; // or currentPrice if you prefer
+  price: number;
 
   @Column({ default: false })
   priceReduced: boolean;
@@ -52,6 +53,16 @@ export class House {
 
   @ManyToOne(() => User, (user) => user.houses, { nullable: false })
   user!: Relation<User>;
+
+  @ManyToOne(() => Broker, (broker) => broker.houses, { nullable: true })
+  assignedBroker?: Broker;
+
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  })
+  status: 'pending' | 'approved' | 'rejected';
 
   @CreateDateColumn()
   created_at: Date;

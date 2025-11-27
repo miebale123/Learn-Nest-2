@@ -25,8 +25,6 @@ export class AuthResponseInterceptor implements NestInterceptor {
           path: '/',
         });
 
-        console.log(data.refreshToken);
-
         delete data?.refreshToken;
 
         const { email, accessToken, message } = data;

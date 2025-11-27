@@ -40,7 +40,15 @@ export class UsersService {
       adminRole = await this.roleService.createRole('admin');
     }
 
-    await this.userRolesService.assignRoleToUser(user.id, adminRole.id);
+    await this.userRolesService.assignRoleToUser(user, adminRole.id);
+
+    // ★ Add expert role
+    let expertRole = await this.roleService.findRole('expert');
+    if (!expertRole) {
+      expertRole = await this.roleService.createRole('expert');
+    }
+
+    await this.userRolesService.assignRoleToUser(user, expertRole.id);
   }
 
   async createUser(
@@ -51,7 +59,6 @@ export class UsersService {
     provider?: string | null,
   ): Promise<User> {
     const hashedPassword = password ? await hash(password) : null;
-    console.log('hashedPassword is ', hashedPassword);
 
     const hashedOTP = verifytoken ? await hash(verifytoken) : null;
 
@@ -72,7 +79,7 @@ export class UsersService {
     }
     try {
       const savedUser = await this.userRepo.save(user);
-      await this.userRolesService.assignRoleToUser(user.id, role.id);
+      await this.userRolesService.assignRoleToUser(user, role.id,);
       return savedUser;
       // 3. Save
     } catch (err) {
@@ -97,8 +104,6 @@ export class UsersService {
       where: { email },
       relations: ['userRoles', 'userRoles.role'],
     });
-
-    console.log('the_user_is', the_user_is);
 
     const fullUser = await this.userRepo.findOne({
       where: { email: 'admin@gmail.com' },
@@ -125,7 +130,7 @@ export class UsersService {
     for (const user of users) {
       if (user.hashedOTP) {
         const isMatch = await compare(OTP, user.hashedOTP);
-        console.log('isMatch for user ', user.email, ' is ', isMatch);
+
         if (isMatch) {
           return user;
         }

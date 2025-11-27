@@ -13,7 +13,7 @@ export class PasswordReset {
   id: number;
 
   @Column({ type: 'bigint', unsigned: true })
-  user_id: number;
+  userId: number;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   hashedResetToken: string;
